@@ -24,8 +24,8 @@ public class FilmController {
 
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
-        if (validateFilm(film) == null) {
-            throw new ValidationException("Валидация не пройдена.");
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года!");
         }
         film.setId(getNextId());
         log.debug("Валидация пройдена.");
@@ -40,8 +40,8 @@ public class FilmController {
             throw new ValidationException("Id должен быть указан!");
         }
         if (films.containsKey(film.getId())) {
-            if (validateFilm(film) == null) {
-                throw new ValidationException("Валидация не пройдена.");
+            if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+                throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года!");
             }
             film.setDescription(film.getDescription());
             film.setName(film.getName());
@@ -49,22 +49,6 @@ public class FilmController {
             film.setDuration(film.getDuration());
             return film;
         } else throw new ValidationException("Такого фильма нет в списке!");
-    }
-
-    private Film validateFilm(Film film) {
-        if (film.getName() == null || film.getName().isBlank()) {
-            throw new ValidationException("Название не может быть пустым!");
-        }
-        if (film.getDescription().length() > 200) {
-            throw new ValidationException("Максимальная длина описания — 200 символов!");
-        }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года!");
-        }
-        if (film.getDuration() <= 0) {
-            throw new ValidationException("Продолжительность фильма должна быть положительным числом!");
-        }
-        return film;
     }
 
     private Long getNextId() {

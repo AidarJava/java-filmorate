@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.ecxeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,10 +23,8 @@ public class UserController {
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
-        if (validateUser(user) == null) {
-            throw new ValidationException("Валидация не пройдена.");
-        }
         user.setId(getNextId());
+        log.debug("Валидация пройдена.");
         if (user.getName() == null) {
             user.setName(user.getLogin());
         }
@@ -41,10 +38,6 @@ public class UserController {
             throw new ValidationException("Id должен быть указан!");
         }
         if (users.containsKey(user.getId())) {
-            if (validateUser(user) == null) {
-                throw new ValidationException("Валидация не пройдена.");
-            }
-            log.debug("Валидация пройдена.");
             user.setBirthday(user.getBirthday());
             user.setLogin(user.getLogin());
             user.setEmail(user.getEmail());
@@ -56,19 +49,6 @@ public class UserController {
             }
             return user;
         } else throw new ValidationException("Такого пользователя нет в списке!");
-    }
-
-    private User validateUser(User user) {
-        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains(String.valueOf('@'))) {
-            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @!");
-        }
-        if (user.getLogin().isBlank() || user.getLogin().contains(String.valueOf(' '))) {
-            throw new ValidationException("Логин не может быть пустым и содержать пробелы!");
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Дата рождения не может быть в будущем!");
-        }
-        return user;
     }
 
     private Long getNextId() {

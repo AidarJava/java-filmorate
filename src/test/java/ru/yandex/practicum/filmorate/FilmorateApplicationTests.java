@@ -1,78 +1,80 @@
 package ru.yandex.practicum.filmorate;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.ecxeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.controller.UserController;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Set;
 
 @SpringBootTest
 public class FilmorateApplicationTests {
 
-	@Test(expected = ValidationException.class)
-	public void testValidateEmailUser() throws IOException {
+	private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+	private final Validator validator = factory.getValidator();
 
+	@Test
+	public void testValidateEmailUser() throws IOException {
 		User user = new User();
-		user.setId(1L);
-		user.setEmail("exampleexample.com");
+		user.setEmail("@exampleexample.com");
 		user.setLogin("exampleLogin");
 		user.setName("Example");
 		user.setBirthday(LocalDate.of(2000, 1, 1));
-		UserController userController = new UserController();
-		userController.createUser(user);
+		Set<ConstraintViolation<User>> violations = validator.validate(user);
+		Assertions.assertFalse(violations.isEmpty(), "Пользователь с неправильным емейлом не должен создаваться");
 	}
 
-	@Test(expected = ValidationException.class)
+	@Test
 	public void testValidateLoginUser() throws IOException {
-
 		User user = new User();
-		user.setId(1L);
 		user.setEmail("example@example.com");
 		user.setLogin("");
 		user.setName("Example");
 		user.setBirthday(LocalDate.of(2000, 1, 1));
-		UserController userController = new UserController();
-		userController.createUser(user);
+		Set<ConstraintViolation<User>> violations = validator.validate(user);
+		Assertions.assertFalse(violations.isEmpty(), "Пользователь с пустым логином не должен создаваться");
 	}
 
-	@Test(expected = ValidationException.class)
+	@Test
 	public void testValidateDateUser() throws IOException {
-
 		User user = new User();
-		user.setId(1L);
 		user.setEmail("example@example.com");
 		user.setLogin("exampleLogin");
 		user.setName("Example");
 		user.setBirthday(LocalDate.of(2050, 1, 1));
-		UserController userController = new UserController();
-		userController.createUser(user);
+		Set<ConstraintViolation<User>> violations = validator.validate(user);
+		Assertions.assertFalse(violations.isEmpty(), "Пользователь с датой др в будущем не должен создаваться");
 	}
 
-	@Test(expected = ValidationException.class)
+	@Test
 	public void testValidateFilmName() throws IOException {
 		Film film = new Film();
 		film.setName("");
 		film.setDescription("exampleFilm");
 		film.setReleaseDate(LocalDate.of(2000, 1, 1));
 		film.setDuration(100);
-		FilmController filmController = new FilmController();
-		filmController.createFilm(film);
+		Set<ConstraintViolation<Film>> violations = validator.validate(film);
+		Assertions.assertFalse(violations.isEmpty(), "Фильм с пустым именем не должен создаваться");
 	}
 
-	@Test(expected = ValidationException.class)
+	@Test
 	public void testValidateFilmDescription() throws IOException {
 		Film film = new Film();
 		film.setName("Example");
 		film.setDescription("exampleFilmexampleFilmexampleFilmexampleFilmexampleFilmexampleFilmexampleFilmexampleFilmexampleFilmexampleFilmexampleFilmexampleFilmexampleFilmexampleFilmexampleFilmexampleFilmexampleFilmFilmexampleFilmFilmexampleFilmFilmexampleFilmFilmexampleFilmFilmexampleFilmFilmexampleFilm");
 		film.setReleaseDate(LocalDate.of(2000, 1, 1));
 		film.setDuration(100);
-		FilmController filmController = new FilmController();
-		filmController.createFilm(film);
+		Set<ConstraintViolation<Film>> violations = validator.validate(film);
+		Assertions.assertFalse(violations.isEmpty(), "Фильм с описанием более 200 смволов не должен создаваться");
 	}
 
 	@Test(expected = ValidationException.class)
@@ -86,15 +88,15 @@ public class FilmorateApplicationTests {
 		filmController.createFilm(film);
 	}
 
-	@Test(expected = ValidationException.class)
+	@Test
 	public void testValidateFilmDuration() throws IOException {
 		Film film = new Film();
 		film.setName("Example");
 		film.setDescription("exampleFilm");
 		film.setReleaseDate(LocalDate.of(2000, 1, 1));
 		film.setDuration(0);
-		FilmController filmController = new FilmController();
-		filmController.createFilm(film);
+		Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        Assertions.assertFalse(violations.isEmpty(), "Фильм с продолжительностью 0 не должен создаваться");
 	}
 
 }
