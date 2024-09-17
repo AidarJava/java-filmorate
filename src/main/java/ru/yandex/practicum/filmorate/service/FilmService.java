@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.ecxeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -9,14 +10,10 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class FilmService {
-    FilmStorage filmStorage;
-    UserStorage userStorage;
-
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
-    }
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
     public Film getFilmById(Long id) {
         if (filmStorage.getFilmById(id) == null) {
@@ -74,6 +71,6 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) {
-        return filmStorage.ubdateFilm(film);
+        return filmStorage.updateFilm(film);
     }
 }

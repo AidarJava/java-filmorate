@@ -3,11 +3,8 @@ package ru.yandex.practicum.filmorate.storage.user;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.ecxeption.NotFoundException;
-import ru.yandex.practicum.filmorate.ecxeption.OccurredException;
 import ru.yandex.practicum.filmorate.ecxeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-
-import java.time.LocalDate;
 
 import java.util.*;
 
@@ -29,7 +26,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User createUser(User user) {
-        validateUser(user);
         user.setId(getNextId());
         log.debug("Валидация пройдена.");
         if (user.getName() == null) {
@@ -44,7 +40,6 @@ public class InMemoryUserStorage implements UserStorage {
         if (user.getId() == null) {
             throw new ValidationException("Id должен быть указан!");
         }
-        validateUser(user);
         if (users.containsKey(user.getId())) {
             user.setBirthday(user.getBirthday());
             user.setLogin(user.getLogin());
@@ -66,17 +61,5 @@ public class InMemoryUserStorage implements UserStorage {
                 .max()
                 .orElse(0);
         return ++currentMaxId;
-    }
-
-    private void validateUser(User user) {
-        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains(String.valueOf('@'))) {
-            throw new OccurredException("Электронная почта не может быть пустой и должна содержать символ @!");
-        }
-        if (user.getLogin().isBlank() || user.getLogin().contains(String.valueOf(' '))) {
-            throw new OccurredException("Логин не может быть пустым и содержать пробелы!");
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new OccurredException("Дата рождения не может быть в будущем!");
-        }
     }
 }

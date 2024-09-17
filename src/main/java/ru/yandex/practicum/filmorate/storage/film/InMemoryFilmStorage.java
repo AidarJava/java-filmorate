@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.ecxeption.NotFoundException;
-import ru.yandex.practicum.filmorate.ecxeption.OccurredException;
 import ru.yandex.practicum.filmorate.ecxeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -30,7 +29,6 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film createFilm(Film film) {
-        validateFilm(film);
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года!");
         }
@@ -42,20 +40,16 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film ubdateFilm(Film film) {
-        validateFilm(film);
+    public Film updateFilm(Film film) {
+       // validateFilm(film);
         if (film.getId() == null) {
             throw new ValidationException("Id должен быть указан!");
         }
-        validateFilm(film);
         if (films.containsKey(film.getId())) {
             if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
                 throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года!");
             }
-            film.setDescription(film.getDescription());
-            film.setName(film.getName());
-            film.setReleaseDate(film.getReleaseDate());
-            film.setDuration(film.getDuration());
+            films.put(film.getId(), film);
             return film;
         } else throw new NotFoundException("Такого фильма нет в списке!");
     }
@@ -67,17 +61,5 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .max()
                 .orElse(0);
         return ++currentMaxId;
-    }
-
-    private void validateFilm(Film film) {
-        if (film.getName() == null || film.getName().isBlank()) {
-            throw new OccurredException("Название не может быть пустым!");
-        }
-        if (film.getDescription().length() > 200) {
-            throw new OccurredException("Максимальная длина описания — 200 символов!");
-        }
-        if (film.getDuration() <= 0) {
-            throw new OccurredException("Продолжительность фильма должна быть положительным числом!");
-        }
     }
 }
