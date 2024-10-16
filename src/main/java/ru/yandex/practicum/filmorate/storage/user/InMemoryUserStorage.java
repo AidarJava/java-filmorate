@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.ecxeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -52,6 +53,59 @@ public class InMemoryUserStorage implements UserStorage {
             }
             return user;
         } else throw new NotFoundException("Такого пользователя нет в списке!");
+    }
+
+    @Override
+    public User createFriendship(long id, long friendId) {
+        if (getUserById(id) == null) {
+            throw new NotFoundException("Такого юзера нет в списке!");
+        }
+        if (getUserById(friendId) == null) {
+            throw new NotFoundException("Невозможно добавить в друзья несуществующего юзера!");
+        }
+        getUserById(id).getFriends().add(friendId);
+        getUserById(friendId).getFriends().add(id);
+        return getUserById(id);
+    }
+
+    @Override
+    public User deleteFriendship(long id, long friendId) {
+        if (getUserById(id) == null) {
+            throw new NotFoundException("Такого юзера нет в списке!");
+        }
+        if (getUserById(friendId) == null) {
+            throw new NotFoundException("Удаляемого из друзья юзера нет в списке!");
+        }
+        getUserById(id).getFriends().remove(friendId);
+        getUserById(friendId).getFriends().remove(id);
+        return getUserById(id);
+    }
+
+    @Override
+    public Collection<User> listOfFriends(long id) {
+        if (getUserById(id) == null) {
+            throw new NotFoundException("Такого юзера нет в списке!");
+        }
+        if (getUserById(id).getFriends() == null) {
+            throw new NotFoundException("Список друзей пуст!");
+        }
+        return getUserById(id).getFriends().stream()
+                .map(friends -> getUserById(friends))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<User> listOfCommonFriends(Long id, Long otherId) {
+        if (getUserById(id) == null || getUserById(otherId) == null) {
+            throw new NotFoundException("Одного из юзеров нет в списке!");
+        }
+        if (getUserById(id).getFriends() == null || getUserById(otherId).getFriends() == null) {
+            throw new NotFoundException("Один из списков друзей пуст!");
+        }
+        getUserById(id).getFriends().retainAll(getUserById(otherId).getFriends());
+        return getUserById(id).getFriends().stream()
+                .map(friends -> getUserById(friends))
+                .collect(Collectors.toList());
     }
 
     private Long getNextId() {

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.ecxeption.NotFoundException;
 import ru.yandex.practicum.filmorate.ecxeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -14,6 +15,8 @@ import java.util.Map;
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
+
+    UserStorage userStorage;
 
     private final Map<Long, Film> films = new HashMap<>();
 
@@ -41,7 +44,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film updateFilm(Film film) {
-       // validateFilm(film);
+        // validateFilm(film);
         if (film.getId() == null) {
             throw new ValidationException("Id должен быть указан!");
         }
@@ -52,6 +55,30 @@ public class InMemoryFilmStorage implements FilmStorage {
             films.put(film.getId(), film);
             return film;
         } else throw new NotFoundException("Такого фильма нет в списке!");
+    }
+
+    public Film userLikesFilm(Long id, Long userId) {
+        Film film = getFilmById(id);
+        if (userStorage.getUserById(userId) == null) {
+            throw new NotFoundException("Такого юзера нет в списке!");
+        }
+        if (film == null) {
+            throw new NotFoundException("Такого фильма нет в списке!");
+        }
+        film.getLikes().add(userId);
+        return film;
+    }
+
+    public Film deleteLikesFilm(Long id, Long userId) {
+        if (userStorage.getUserById(userId) == null) {
+            throw new NotFoundException("Такого юзера нет!");
+        }
+        Film film = getFilmById(id);
+        if (film == null) {
+            throw new NotFoundException("Такого фильма нет в списке!");
+        }
+        film.getLikes().remove(userId);
+        return film;
     }
 
     private Long getNextId() {
