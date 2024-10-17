@@ -48,7 +48,7 @@ public class RatingDbStorage implements RatingStorage {
         try {
             return jdbcTemplate.queryForObject(GET_ID_QUERY, new RatingRowMapper(), id);
         } catch (DataAccessException e) {
-            throw new NotFoundException("Такого рейтинга нет!");
+            throw new NotFoundException("Такого рейтинга нет! " + e.getMessage());
         }
     }
 
