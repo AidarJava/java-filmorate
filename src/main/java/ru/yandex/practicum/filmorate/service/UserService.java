@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.ecxeption.DatabaseException;
 import ru.yandex.practicum.filmorate.ecxeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -20,7 +19,7 @@ public class UserService {
 
     public User getUserById(Long id) {
         if (userStorage.getUserById(id) == null) {
-            throw new DatabaseException("Такого юзера нет в списке!");
+            throw new NotFoundException("Такого юзера нет в списке!");
         }
         return userStorage.getUserById(id);
     }
@@ -49,10 +48,10 @@ public class UserService {
 
     public Collection<User> listOfFriends(long id) {
         if (userStorage.getUserById(id) == null) {
-            throw new DatabaseException("Такого юзера нет в списке!");
+            throw new NotFoundException("Такого юзера нет в списке!");
         }
         if (userStorage.getUserById(id).getFriends() == null) {
-            throw new DatabaseException("Список друзей пуст!");
+            throw new NotFoundException("Список друзей пуст!");
         }
         return userStorage.listOfFriends(id);
     }

@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.mappers.FilmRowMapper;
+import ru.yandex.practicum.filmorate.ecxeption.DatabaseException;
 import ru.yandex.practicum.filmorate.ecxeption.OccurredException;
 import ru.yandex.practicum.filmorate.ecxeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -45,7 +46,7 @@ public class FilmDbStorage implements FilmStorage {
         try {
             return jdbcTemplate.queryForObject(GET_ID_QUERY, new FilmRowMapper(jdbcTemplate), id);
         } catch (DataAccessException e) {
-            throw new ValidationException("Такого фильма не существует!");
+            throw new DatabaseException("Такого фильма не существует! " + e.getMessage());
         }
     }
 
@@ -75,7 +76,7 @@ public class FilmDbStorage implements FilmStorage {
                     jdbcTemplate.update("INSERT INTO films_genre (films_id, genre_id) VALUES (?, ?)", film.getId(), genres.getId());
                     film.setGenres(new HashSet<>(film.getGenres()));
                 } catch (DataAccessException e) {
-                    throw new ValidationException("Такого жанра не существует!");
+                    throw new DatabaseException("Такого жанра не существует! " + e.getMessage());
                 }
             }
         }
@@ -84,7 +85,8 @@ public class FilmDbStorage implements FilmStorage {
                 jdbcTemplate.update("INSERT INTO films_rating (films_id, rating_id) VALUES (?, ?)", film.getId(), film.getMpa().getId());
                 film.setMpa(film.getMpa());
             } catch (DataAccessException e) {
-                throw new ValidationException("Такого рейтинга не существует!");
+                throw new DatabaseException("Такого рейтинга не существует! " + e.getMessage()) {
+                };
             }
         }
         return film;
@@ -95,7 +97,7 @@ public class FilmDbStorage implements FilmStorage {
         try {
             jdbcTemplate.queryForObject(GET_ID_QUERY, new FilmRowMapper(jdbcTemplate), film.getId());
         } catch (DataAccessException e) {
-            throw new OccurredException("Такого фильма нет в списке!");
+            throw new OccurredException("Такого фильма нет в списке!  " + e.getMessage());
         }
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(UPDATE_QUERY);

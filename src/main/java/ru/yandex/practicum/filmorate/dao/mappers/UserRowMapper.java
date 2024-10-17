@@ -20,7 +20,7 @@ public class UserRowMapper implements RowMapper<User> {
              SELECT senderUser_id FROM friends WHERE receiverUser_id = ?
             """;
     private static final String CONFIRMED_FRIENDSHIP_QUERY = """
-             SELECT receiverUser_id FROM friends WHERE senderUser_id = ? AND status = true
+             SELECT receiverUser_id FROM friends WHERE senderUser_id = ? AND status = 2
             """;
 
     @Override

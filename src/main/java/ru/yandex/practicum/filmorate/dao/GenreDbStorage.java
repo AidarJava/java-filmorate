@@ -48,7 +48,7 @@ public class GenreDbStorage implements GenreStorage {
         try {
             return jdbcTemplate.queryForObject(GET_ID_QUERY, new GenreRowMapper(), id);
         } catch (DataAccessException e) {
-            throw new NotFoundException("Такого жанра нет!");
+            throw new NotFoundException("Такого жанра нет! " + e.getMessage());
         }
     }
 
