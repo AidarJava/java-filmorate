@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +18,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 public class User {
+    @NotNull
     Long id;
     @Email(message = "Введенный email не соответствует формату email-адресов!")
     String email;
